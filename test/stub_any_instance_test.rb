@@ -17,6 +17,13 @@ module StubAnyInstanceTest
 
   class ChildClass < ParentClass
   end
+
+  class WithConstructor
+    attr_accessor :name
+    def initialize(name = "Bob")
+      @name  = name
+    end
+  end
 end
 
 class TestStubAnyInstance < MiniTest::Unit::TestCase
@@ -66,5 +73,11 @@ class TestStubAnyInstance < MiniTest::Unit::TestCase
 
   def test_stubbed_method_does_not_get_restored_to_non_owning_class
     assert_equal 'bar', ::StubAnyInstanceTest::ChildClass.new.foo
+  end
+
+  def test_stub_constructor_does_not_raise_warnings
+    ::StubAnyInstanceTest::WithConstructor.stub_any_instance :initialize, nil do; end
+    assert_empty $stderr.string
+    assert with_constructor.name == expected_name
   end
 end
